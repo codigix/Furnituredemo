@@ -27,7 +27,7 @@ export default function AdminLoginPage() {
 
     try {
       const { data, status } = await axios.post(
-        `${API_BASE}/api/admin/login`,
+        `${API_BASE}/admin/login`,
         { email, password },
         { withCredentials: true }           // keep if your backend sets cookies
       );

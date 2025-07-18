@@ -1,15 +1,16 @@
-// api.jsx
 import axios from "axios";
 
-// Get the JWT that you saved after login
-const token = localStorage.getItem("token");
-
-// Create a pre‑configured Axios instance
-const api = axios.create({
-    baseURL: "http://localhost:5000/api",
-    headers: {
-        Authorization: `Bearer ${token}`,
-    },
+export const apiService = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE_URL,
 });
 
-export default api;
+// Attach token automatically
+apiService.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+export default apiService; // ✅ Default export
