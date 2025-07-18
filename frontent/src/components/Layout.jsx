@@ -1,9 +1,11 @@
 
 import { Outlet } from 'react-router-dom';
-import Navbar from './Navbar';
+
+
 import Footer from './Footer';
 import { ShoppingCart } from './ShoppingCart';
 import { useAppSelector } from '../hooks/useAppSelector';
+import Navbar from './Navbar';
 
 const Layout = () => {
   const isCartOpen = useAppSelector((state) => state.cart.isOpen);

@@ -1,12 +1,13 @@
 
 import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
+
 import { ShoppingCart } from 'lucide-react';
 import { useAppDispatch } from '../hooks/useAppDispatch';
 import { addToCart } from '../store/cartSlice';
 import { formatCurrency } from '../utils/formatCurrency';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { Button } from './ui/button';
 
 const ProductCard = ({ product }) => {
   const dispatch = useAppDispatch();

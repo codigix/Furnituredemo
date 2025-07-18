@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAppSelector } from '../hooks/useAppSelector';
 import { useAppDispatch } from '../hooks/useAppDispatch';
 import { addToCart } from '../store/cartSlice';
-import { Button } from '@/components/ui/button';
+
 import { 
   Minus, 
   Plus, 
@@ -13,6 +13,7 @@ import {
 import { useState } from 'react';
 import { formatCurrency } from '../utils/formatCurrency';
 import { toast } from 'sonner';
+import { Button } from '../components/ui/button';
 
 const ProductDetail = () => {
   const { id } = useParams();

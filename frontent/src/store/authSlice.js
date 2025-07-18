@@ -2,23 +2,29 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { authService } from '../services/authService';
 import { toast } from 'sonner';
 
-// Initial state
+// ✅ Restore token & user from localStorage on refresh
 const token = localStorage.getItem('token');
+const storedUser = localStorage.getItem('user');
 
 const initialState = {
-  token: token,
-  user: null,
+  token: token || null,
+  user: storedUser ? JSON.parse(storedUser) : null,
   isAuthenticated: !!token,
   isLoading: false,
   error: null,
 };
 
-// Async thunks
+// ==================== ASYNC THUNKS ====================
 export const login = createAsyncThunk(
   'auth/login',
   async ({ email, password }, { rejectWithValue }) => {
     try {
       const response = await authService.login(email, password);
+
+      // ✅ Save token & user in localStorage
+      localStorage.setItem('token', response.token);
+      localStorage.setItem('user', JSON.stringify(response.user));
+
       return response;
     } catch (error) {
       return rejectWithValue(error.message || 'Login failed');
@@ -31,6 +37,11 @@ export const googleLogin = createAsyncThunk(
   async (tokenId, { rejectWithValue }) => {
     try {
       const response = await authService.googleAuth(tokenId);
+
+      // ✅ Save token & user in localStorage
+      localStorage.setItem('token', response.token);
+      localStorage.setItem('user', JSON.stringify(response.user));
+
       return response;
     } catch (error) {
       return rejectWithValue(error.message || 'Google login failed');
@@ -55,6 +66,10 @@ export const getUserProfile = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await authService.getUserProfile();
+
+      // ✅ Update localStorage when user profile changes
+      localStorage.setItem('user', JSON.stringify(response.user));
+
       return response.user;
     } catch (error) {
       return rejectWithValue(error.message || 'Failed to get user profile');
@@ -67,6 +82,10 @@ export const updateUserProfile = createAsyncThunk(
   async (userData, { rejectWithValue }) => {
     try {
       const response = await authService.updateUserProfile(userData);
+
+      // ✅ Update localStorage when user profile updates
+      localStorage.setItem('user', JSON.stringify(response.user));
+
       return response.user;
     } catch (error) {
       return rejectWithValue(error.message || 'Failed to update user profile');
@@ -74,12 +93,15 @@ export const updateUserProfile = createAsyncThunk(
   }
 );
 
+// ==================== SLICE ====================
 const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
     logout: (state) => {
       authService.logout();
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
       state.token = null;
       state.user = null;
       state.isAuthenticated = false;
@@ -92,13 +114,16 @@ const authSlice = createSlice({
       state.token = action.payload.token;
       state.user = action.payload.user;
       state.isAuthenticated = true;
+      // ✅ Also persist when using manual loginSuccess
+      localStorage.setItem('token', action.payload.token);
+      localStorage.setItem('user', JSON.stringify(action.payload.user));
     },
     registerSuccess: (state) => {
       state.isLoading = false;
     },
   },
   extraReducers: (builder) => {
-    // Login
+    // ========== LOGIN ==========
     builder.addCase(login.pending, (state) => {
       state.isLoading = true;
       state.error = null;
@@ -116,7 +141,7 @@ const authSlice = createSlice({
       toast.error(action.payload || 'Login failed');
     });
 
-    // Google Login
+    // ========== GOOGLE LOGIN ==========
     builder.addCase(googleLogin.pending, (state) => {
       state.isLoading = true;
       state.error = null;
@@ -134,7 +159,7 @@ const authSlice = createSlice({
       toast.error(action.payload || 'Google login failed');
     });
 
-    // Register
+    // ========== REGISTER ==========
     builder.addCase(register.pending, (state) => {
       state.isLoading = true;
       state.error = null;
@@ -149,7 +174,7 @@ const authSlice = createSlice({
       toast.error(action.payload || 'Registration failed');
     });
 
-    // Get User Profile
+    // ========== GET USER PROFILE ==========
     builder.addCase(getUserProfile.pending, (state) => {
       state.isLoading = true;
       state.error = null;
@@ -163,9 +188,11 @@ const authSlice = createSlice({
       state.error = action.payload;
       state.isAuthenticated = false;
       state.token = null;
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
     });
 
-    // Update User Profile
+    // ========== UPDATE USER PROFILE ==========
     builder.addCase(updateUserProfile.pending, (state) => {
       state.isLoading = true;
       state.error = null;

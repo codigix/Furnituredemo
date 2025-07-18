@@ -17,10 +17,10 @@ import AdminRoute from "./components/AdminRoute";
 
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
-import ProductsPage from "./pages/ProductsPage";
+
 import ProductDetail from "./pages/ProductDetail";
 import CartPage from "./pages/CartPage";
-import CheckoutPage from "./pages/CheckoutPage";
+import CheckoutPage from "./pages/CheckoutPage"
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import UserProfilePage from "./pages/UserProfilePage";
@@ -32,6 +32,7 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminProducts from "./pages/admin/AdminProducts";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminOrders from "./pages/admin/AdminOrders";
+import ProductsPage from "./pages/ProductsPage";
 
 const queryClient = new QueryClient();
 

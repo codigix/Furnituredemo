@@ -107,6 +107,7 @@ exports.registerUser = async (req, res) => {
 // @access  Public
 exports.loginUser = async (req, res) => {
   try {
+    console.log("request is", req)
     const { email, password } = req.body;
 
     const { data: user, error } = await supabase

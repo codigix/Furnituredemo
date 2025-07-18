@@ -1,10 +1,10 @@
 import axios from "axios";
 
 export const apiService = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
+  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api",
 });
 
-// Attach token automatically
+// ✅ Attach token automatically
 apiService.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token) {
@@ -13,4 +13,4 @@ apiService.interceptors.request.use((config) => {
   return config;
 });
 
-export default apiService; // ✅ Default export
+export default apiService;

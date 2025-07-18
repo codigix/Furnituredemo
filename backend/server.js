@@ -23,9 +23,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
     origin: [
-      "http://localhost:3000",
-      "http://localhost:8081",
-      "http://localhost:8080",
+      // "http://localhost:3000",
+      // "http://localhost:8081",
+      // "http://localhost:8080",
+       "https://furnituredemo.codigix.co"
     ], // Allow React development servers
     credentials: true,
   })
@@ -43,6 +44,9 @@ app.get("/", (req, res) => {
   res.send("API is running...");
 });
 
+app.get("/api/check", (req,res) => {
+  res.send("API is running...");
+});
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);

@@ -1,6 +1,7 @@
 
-import { Button } from '@/components/ui/button';
+
 import { Link } from 'react-router-dom';
+import { Button } from './ui/button';
 
 const HeroSection = () => {
   return (

@@ -3,8 +3,9 @@ import HeroSection from "../components/HeroSection";
 import FeaturedProducts from "../components/FeaturedProducts";
 import CategorySection from "../components/CategorySection";
 import Testimonials from "../components/Testimonials";
-import { Button } from '@/components/ui/button';
+
 import { Link } from 'react-router-dom';
+import { Button } from "../components/ui/button";
 
 const Index = () => {
   return (
