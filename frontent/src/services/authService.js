@@ -1,9 +1,13 @@
 // @ts-nocheck
+import axios from "axios";
 import apiService from "./api"; // ✅ Use default export (recommended)
 
 // Define methods
 const login = async (/** @type {any} */ email, /** @type {any} */ password) => {
-  const res = await apiService.post("/users/login", { email, password }); 
+  const res = await axios.post('/users/login', {
+  email,
+  password,
+});
   return res.data;
 };
 

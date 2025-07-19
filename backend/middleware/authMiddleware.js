@@ -1,12 +1,13 @@
-const jwt = require("jsonwebtoken");
-const supabase = require("../db/supabaseClient");
+import jwt from "jsonwebtoken";
+import supabase from "../db/supabaseClient.js";
 
-// Protect Middleware
-exports.protect = async (req, res, next) => {
+
+// ✅ Protect Middleware
+export const protect = async (req, res, next) => {
   try {
     let token;
 
-    // Get token from header
+    // Get token from header (Bearer <token>)
     if (
       req.headers.authorization &&
       req.headers.authorization.startsWith("Bearer")
@@ -21,10 +22,10 @@ exports.protect = async (req, res, next) => {
       });
     }
 
-    // Decode token
+    // ✅ Decode JWT
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    
-    // Fetch user from Supabase using decoded ID
+
+    // ✅ Fetch user from Supabase
     const { data: user, error } = await supabase
       .from("users")
       .select("*")
@@ -38,14 +39,15 @@ exports.protect = async (req, res, next) => {
       });
     }
 
-    // Attach user to request
-    // req.user = user;
+    // ✅ Attach user to request
     req.user = {
       id: user.id,
-      isAdmin: user.is_admin,
+      isAdmin: user.is_admin === true, // Ensure boolean
     };
+
     next();
-  } catch (error) {
+  } catch (err) {
+    console.error("Protect middleware error:", err.message);
     return res.status(401).json({
       success: false,
       message: "Not authorized to access this route",
@@ -53,20 +55,8 @@ exports.protect = async (req, res, next) => {
   }
 };
 
-// 🛡️ Admin Middleware
-// exports.admin = (req, res, next) => {
-//   if (req.user && req.user.is_admin === true) {
-//     next();
-//   } else {
-//     res.status(401).json({
-//       success: false,
-//       message: "Not authorized as admin",
-//     });
-//   }
-// };
-
-// 🛡️ Admin Middleware
-exports.admin = (req, res, next) => {
+// ✅ Admin Middleware
+export const admin = (req, res, next) => {
   if (req.user && req.user.isAdmin === true) {
     next();
   } else {

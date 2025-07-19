@@ -1,80 +1,51 @@
-const express = require("express");
-const mongoose = require("mongoose");
-const cors = require("cors");
-const morgan = require("morgan");
-const dotenv = require("dotenv");
-const supabase = require("./db/supabaseClient");
+import express from "express";
+import dotenv from "dotenv";
+import cors from "cors";
+import morgan from "morgan";
 
-// Load environment variables
+// ✅ Import routes
+import productRoutes from "./routes/productRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
+import orderRoutes from "./routes/orderRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js";
+
+// ✅ Load environment variables from .env
 dotenv.config();
 
-// Import routes
-const productRoutes = require("./routes/productRoutes");
-const userRoutes = require("./routes/userRoutes");
-const orderRoutes = require("./routes/orderRoutes");
-const adminRoutes = require("./routes/adminRoutes");
-
-// Create Express app
+// ✅ Initialize express app
 const app = express();
 
-// Middleware
+// ✅ Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// ✅ CORS configuration (allow frontend origins)
 app.use(
   cors({
     origin: [
-      // "http://localhost:3000",
-      // "http://localhost:8081",
-      // "http://localhost:8080",
-       "https://furnituredemo.codigix.co"
-    ], // Allow React development servers
-    credentials: true,
+      "http://localhost:5000", // Possibly backend itself?
+      "http://31.97.206.36",   // Deployed frontend
+    ],
+    credentials: true, // Allow cookies, headers, etc.
   })
 );
+
+// ✅ Logging
 app.use(morgan("dev"));
 
-// Routes
-app.use("/api/products", productRoutes);
+// ✅ Route handling
 app.use("/api/users", userRoutes);
+app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
-app.use("/api/admin",adminRoutes)
+app.use("/api/admin", adminRoutes);
 
-// Default route
+// ✅ Test route
 app.get("/", (req, res) => {
   res.send("API is running...");
 });
 
-app.get("/api/check", (req,res) => {
-  res.send("API is running...");
-});
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({
-    success: false,
-    error: err.message,
-  });
-});
-
-// // Connect to MongoDB
-// mongoose
-//   .connect(
-//     "mongodb+srv://priyanka2307:priyanka2307@furniture.otunszi.mongodb.net/?retryWrites=true&w=majority&appName=furniture"
-//   )
-//   .then(() => {
-//     console.log("Connected to MongoDB");
-//     // Start server
-//     const PORT = process.env.PORT || 5000;
-//     app.listen(PORT, () => {
-//       console.log(`Server running on port ${PORT}`);
-//     });
-//   })
-//   .catch((err) => {
-//     console.error("MongoDB connection error:", err.message);
-//   });
-
-// Start server
+// ✅ Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`✅ Server running on port ${PORT}`);
 });
