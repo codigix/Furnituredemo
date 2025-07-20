@@ -1,22 +1,22 @@
-import express from "express";
-import { protect } from "../middleware/authMiddleware.js";
-import {
-  createOrder,
-  getMyOrders,
-  getOrderById,
-  updateOrderToPaid,
-  getOrders,
-} from "../controllers/orderController.js";
 
+const express = require('express');
 const router = express.Router();
+const { 
+  createOrder, 
+  getOrderById, 
+  getUserOrders, 
+  getOrders, 
+  updateOrderStatus 
+} = require('../controllers/orderController');
+const { protect, admin } = require('../middleware/authMiddleware');
 
-// ✅ User routes
-router.post("/", protect, createOrder);
-router.get("/myorders", protect, getMyOrders);
-router.get("/:id", protect, getOrderById);
-router.put("/:id/pay", protect, updateOrderToPaid);
+// Protected routes
+router.post('/', protect, createOrder);
+router.get('/myorders', protect, getUserOrders);
+router.get('/:id', protect, getOrderById);
 
-// ✅ Admin routes (optional)
-router.get("/", protect, getOrders);
+// Admin routes
+router.get('/', protect, admin, getOrders);
+router.put('/:id/status', protect, admin, updateOrderStatus);
 
-export default router;
+module.exports = router;

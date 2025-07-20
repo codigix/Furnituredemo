@@ -1,84 +1,255 @@
-import supabase from "../db/supabaseClient.js";
+// const Product = require('../models/productModel');
+const supabase = require("../db/supabaseClient");
 
-// ✅ Get All Products
-export const getProducts = async (req, res) => {
+// @desc    Get all products
+// @route   GET /api/products
+// @access  Public
+// exports.getProducts = async (req, res) => {
+//   try {
+//     const products = await Product.find();
+
+//     res.status(200).json({
+//       success: true,
+//       count: products.length,
+//       products
+//     });
+
+//   } catch (error) {
+//     res.status(500).json({
+//       success: false,
+//       message: error.message
+//     });
+//   }
+// };
+
+exports.getProducts = async (req, res) => {
   try {
-    const { data, error } = await supabase.from("products").select("*");
+    const { data: products, error } = await supabase
+      .from("products")
+      .select("*");
+
     if (error) throw error;
 
-    res.json({ success: true, products: data });
+    res.status(200).json({
+      success: true,
+      count: products.length,
+      products,
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
 
-// ✅ Get Product By ID
-export const getProductById = async (req, res) => {
+// @desc    Get single product
+// @route   GET /api/products/:id
+// @access  Public
+// exports.getProductById = async (req, res) => {
+//   try {
+//     const product = await Product.findById(req.params.id);
+
+//     if (product) {
+//       res.status(200).json({
+//         success: true,
+//         product
+//       });
+//     } else {
+//       res.status(404).json({
+//         success: false,
+//         message: 'Product not found'
+//       });
+//     }
+
+//   } catch (error) {
+//     res.status(500).json({
+//       success: false,
+//       message: error.message
+//     });
+//   }
+// };
+exports.getProductById = async (req, res) => {
   try {
-    const { data, error } = await supabase
+    const { data: product, error } = await supabase
       .from("products")
       .select("*")
       .eq("id", req.params.id)
       .single();
 
-    if (error) throw error;
+    if (error || !product) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Product not found" });
+    }
 
-    res.json({ success: true, product: data });
+    res.status(200).json({ success: true, product });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
 
-// ✅ Create Product (Admin)
-export const createProduct = async (req, res) => {
-  try {
-    const { name, description, price, image, category } = req.body;
+// @desc    Create a product
+// @route   POST /api/products
+// @access  Private/Admin
+// exports.createProduct = async (req, res) => {
+//   try {
+//     const { name, description, price, image, category, stock } = req.body;
 
-    const { data, error } = await supabase
+//     const product = await Product.create({
+//       name,
+//       description,
+//       price,
+//       image,
+//       category,
+//       stock,
+//     });
+
+//     res.status(201).json({
+//       success: true,
+//       product,
+//     });
+//   } catch (error) {
+//     res.status(500).json({
+//       success: false,
+//       message: error.message,
+//     });
+//   }
+// };
+
+exports.createProduct = async (req, res) => {
+  try {
+    const { name, description, price, image, category, stock } = req.body;
+
+    const { data: product, error } = await supabase
       .from("products")
-      .insert([{ name, description, price, image, category }])
-      .select("*")
+      .insert([
+        {
+          name,
+          description,
+          price,
+          image,
+          category,
+          stock,
+          user_id: req.user.id,
+        },
+      ])
+      .select()
       .single();
 
     if (error) throw error;
 
-    res.status(201).json({ success: true, product: data });
+    res.status(201).json({ success: true, product });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
 
-// ✅ Update Product (Admin)
-export const updateProduct = async (req, res) => {
-  try {
-    const { name, description, price, image, category } = req.body;
+// @desc    Update a product
+// @route   PUT /api/products/:id
+// @access  Private/Admin
+// exports.updateProduct = async (req, res) => {
+//   try {
+//     const { name, description, price, image, category, stock } = req.body;
 
-    const { data, error } = await supabase
+//     const product = await Product.findById(req.params.id);
+
+//     if (product) {
+//       product.name = name || product.name;
+//       product.description = description || product.description;
+//       product.price = price || product.price;
+//       product.image = image || product.image;
+//       product.category = category || product.category;
+//       product.stock = stock || product.stock;
+
+//       const updatedProduct = await product.save();
+
+//       res.status(200).json({
+//         success: true,
+//         product: updatedProduct,
+//       });
+//     } else {
+//       res.status(404).json({
+//         success: false,
+//         message: "Product not found",
+//       });
+//     }
+//   } catch (error) {
+//     res.status(500).json({
+//       success: false,
+//       message: error.message,
+//     });
+//   }
+// };
+exports.updateProduct = async (req, res) => {
+  try {
+    const { name, description, price, image, category, stock } = req.body;
+
+    const { data: updatedProduct, error } = await supabase
       .from("products")
-      .update({ name, description, price, image, category })
+      .update({
+        ...(name && { name }),
+        ...(description && { description }),
+        ...(price && { price }),
+        ...(image && { image }),
+        ...(category && { category }),
+        ...(stock && { stock }),
+      })
       .eq("id", req.params.id)
-      .select("*")
+      .select()
       .single();
 
-    if (error) throw error;
+      // .eq("user_id", req.user.id) // Optional: only allow owner to update
 
-    res.json({ success: true, product: data });
+
+    if (error || !updatedProduct) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found or update failed",
+      });
+    }
+
+    res.status(200).json({ success: true, product: updatedProduct });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
 
-// ✅ Delete Product (Admin)
-export const deleteProduct = async (req, res) => {
+// @desc    Delete a product
+// @route   DELETE /api/products/:id
+// @access  Private/Admin
+// exports.deleteProduct = async (req, res) => {
+//   try {
+//     const product = await Product.findById(req.params.id);
+
+//     if (product) {
+//       await product.deleteOne();
+
+//       res.status(200).json({
+//         success: true,
+//         message: "Product removed",
+//       });
+//     } else {
+//       res.status(404).json({
+//         success: false,
+//         message: "Product not found",
+//       });
+//     }
+//   } catch (error) {
+//     res.status(500).json({
+//       success: false,
+//       message: error.message,
+//     });
+//   }
+// };
+exports.deleteProduct = async (req, res) => {
   try {
     const { error } = await supabase
       .from("products")
       .delete()
-      .eq("id", req.params.id);
+      .eq("id", req.params.id)
+      // .eq("user_id", req.user.id); // Optional: only allow owner to delete
 
     if (error) throw error;
 
-    res.json({ success: true, message: "Product deleted successfully" });
+    res.status(200).json({ success: true, message: "Product removed" });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

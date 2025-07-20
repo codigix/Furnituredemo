@@ -1,38 +1,63 @@
-import supabase from "../db/supabaseClient.js";
-import jwt from "jsonwebtoken";
-import bcrypt from "bcryptjs";
+const supabase = require("../db/supabaseClient");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "30d" });
+  return jwt.sign({ id }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRES_IN,
+  });
 };
 
-export const loginAdmin = async (req, res) => {
+// @desc    Login Admin & get token
+// @route   POST /api/admin/login
+// @access  Public
+exports.loginAdmin = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const { data: admin, error } = await supabase
+    // 1. Fetch user by email
+    const { data: user, error } = await supabase
       .from("users")
       .select("*")
       .eq("email", email)
-      .eq("is_admin", true)
+      .eq("is_admin", true)  // ensure only admin can login here
       .single();
 
-    if (error || !admin) {
-      return res.status(401).json({ success: false, message: "Invalid credentials" });
+    if (error || !user) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid admin credentials",
+      });
     }
 
-    const isMatch = await bcrypt.compare(password, admin.password);
-
+    // 2. Compare password
+    const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(401).json({ success: false, message: "Invalid credentials" });
+      return res.status(401).json({
+        success: false,
+        message: "Invalid admin credentials",
+      });
     }
 
-    res.json({
+    // 3. Generate token
+    const token = generateToken(user.id);
+
+    res.status(200).json({
       success: true,
-      token: generateToken(admin.id),
-      admin,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        isAdmin: user.is_admin,
+      },
+      token,
     });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+  } catch (error) {
+    console.error("Admin Login Error:", error.message);
+    res.status(500).json({
+      success: false,
+      message: "Admin login failed",
+      error: error.message,
+    });
   }
 };
