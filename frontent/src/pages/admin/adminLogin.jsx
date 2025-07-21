@@ -1,10 +1,11 @@
 // AdminLoginPage.jsx
+// @ts-nocheck
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 
-const API_BASE = process.env.VITE_API_BASE_URL || "http://localhost:5000";
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState("");
@@ -29,11 +30,11 @@ export default function AdminLoginPage() {
       const { data, status } = await axios.post(
         `${API_BASE}/admin/login`,
         { email, password },
-        { withCredentials: true }           // keep if your backend sets cookies
+        { withCredentials: true } // keep if your backend sets cookies
       );
 
       if (status === 200 && data.success) {
-        localStorage.setItem("authToken", data.token);          // JWT
+        localStorage.setItem("authToken", data.token); // JWT
         localStorage.setItem("user", JSON.stringify(data.user));
         toast.success("Login successful!");
 
