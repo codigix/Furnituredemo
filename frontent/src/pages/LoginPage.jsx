@@ -18,7 +18,7 @@ const extractRole = (payload) => {
     payload?.user?.role ||
     (payload.isAdmin ? "admin" : "user")
   );
-};
+}; 
 
 const LoginPage = () => {
   const dispatch = useAppDispatch();
@@ -29,7 +29,8 @@ const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const redirectTo = new URLSearchParams(location.search).get("redirect") || "/";
+  const redirectTo =
+    new URLSearchParams(location.search).get("redirect") || "/";
 
   // --------------------- Handlers ---------------------
   const handleSubmit = async (e) => {

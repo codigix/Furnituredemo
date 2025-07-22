@@ -3,14 +3,16 @@ import dotenv from "dotenv";
 import cors from "cors";
 import morgan from "morgan";
 
+// ✅ Load environment variables from .env
+dotenv.config();
+
 // ✅ Import routes
 import productRoutes from "./routes/productRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 
-// ✅ Load environment variables from .env
-dotenv.config();
+
 
 // ✅ Initialize express app
 const app = express();
@@ -24,11 +26,12 @@ app.use(
   cors({
     origin: [
       "http://localhost:5000", // Possibly backend itself?
-      "http://31.97.206.36",   // Deployed frontend
+      "http://31.97.206.36",
     ],
     credentials: true, // Allow cookies, headers, etc.
   })
 );
+// app.use(cors({ origin: "*", credentials: true }));
 
 // ✅ Logging
 app.use(morgan("dev"));

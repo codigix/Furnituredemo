@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
 export default function AdminLoginPage() {
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState("");     
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
