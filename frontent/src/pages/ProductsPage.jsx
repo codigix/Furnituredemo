@@ -1,47 +1,59 @@
-import { useState } from "react";
-import { useAppSelector } from "../hooks/useAppSelector";
+import { useState, useEffect } from "react";
 import ProductCard from "../components/ProductCard";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Search } from "lucide-react";
-import { Button } from "../components/ui/button";
 
 const ProductsPage = () => {
-  const { products } = useAppSelector((state) => state.products);
-
-  // State for filters
+  const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [priceRange, setPriceRange] = useState([0, 1500]);
   const [selectedCategories, setSelectedCategories] = useState([]);
 
-  // Extract unique categories from products
+  // Fetch products on component mount
+  useEffect(() => {
+    const getProducts = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/api/products");
+        const data = await res.json();
+
+        // Handle wrapped and unwrapped responses
+        const productList = Array.isArray(data) ? data : data.products;
+        setProducts(productList || []);
+        console.log("Loaded products:", productList);
+      } catch (error) {
+        console.error("Failed to fetch products:", error);
+      }
+    };
+
+    getProducts();
+  }, []);
+
+  // Extract unique categories
   const categories = Array.from(
-    new Set(products.map((product) => product.category))
+    new Set(products.map((p) => p.category || "Uncategorized"))
   );
 
-  // Filter products based on search term, price range, and categories
+  // Filter logic
   const filteredProducts = products.filter((product) => {
-    const matchesSearch = product.name
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase());
+    const name = (product.name || "").toLowerCase();
+    const matchesSearch = name.includes(searchTerm.toLowerCase());
     const matchesPrice =
       product.price >= priceRange[0] && product.price <= priceRange[1];
     const matchesCategory =
       selectedCategories.length === 0 ||
       selectedCategories.includes(product.category);
-
     return matchesSearch && matchesPrice && matchesCategory;
   });
 
   const handleCategoryChange = (category) => {
-    setSelectedCategories((prev) => {
-      if (prev.includes(category)) {
-        return prev.filter((c) => c !== category);
-      } else {
-        return [...prev, category];
-      }
-    });
+    setSelectedCategories((prev) =>
+      prev.includes(category)
+        ? prev.filter((c) => c !== category)
+        : [...prev, category]
+    );
   };
 
   const clearFilters = () => {
@@ -55,7 +67,7 @@ const ProductsPage = () => {
       <h1 className="text-3xl font-bold mb-8">All Products</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        {/* Filters sidebar */}
+        {/* Filters Sidebar */}
         <div className="md:col-span-1 space-y-6">
           <div className="bg-white p-4 rounded-lg border">
             <h3 className="font-semibold mb-3">Search</h3>
@@ -74,7 +86,6 @@ const ProductsPage = () => {
           <div className="bg-white p-4 rounded-lg border">
             <h3 className="font-semibold mb-3">Price Range</h3>
             <Slider
-              defaultValue={priceRange}
               min={0}
               max={1500}
               step={10}
@@ -98,10 +109,7 @@ const ProductsPage = () => {
                     checked={selectedCategories.includes(category)}
                     onCheckedChange={() => handleCategoryChange(category)}
                   />
-                  <label
-                    htmlFor={category}
-                    className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
+                  <label htmlFor={category} className="text-sm">
                     {category}
                   </label>
                 </div>
@@ -114,7 +122,7 @@ const ProductsPage = () => {
           </Button>
         </div>
 
-        {/* Products grid */}
+        {/* Products Grid */}
         <div className="md:col-span-3">
           {filteredProducts.length === 0 ? (
             <div className="text-center py-12">
@@ -124,9 +132,12 @@ const ProductsPage = () => {
               </p>
             </div>
           ) : (
-            <div className="product-grid">
+            <div className="product-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredProducts.map((product) => (
-                <ProductCard key={product._id} product={product} />
+                <ProductCard
+                  key={product.id || product._id}
+                  product={product}
+                />
               ))}
             </div>
           )}

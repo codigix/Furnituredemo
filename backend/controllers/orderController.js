@@ -5,36 +5,6 @@ const supabase = require("../db/supabaseClient");
 // @desc    Create new order
 // @route   POST /api/orders
 // @access  Private
-// exports.createOrder = async (req, res) => {
-//   try {
-//     const { items, shippingAddress, total } = req.body;
-
-//     if (items && items.length === 0) {
-//       return res.status(400).json({
-//         success: false,
-//         message: 'No order items'
-//       });
-//     }
-
-//     const order = await Order.create({
-//       user: req.user._id,
-//       items,
-//       shippingAddress,
-//       total
-//     });
-
-//     res.status(201).json({
-//       success: true,
-//       order
-//     });
-
-//   } catch (error) {
-//     res.status(500).json({
-//       success: false,
-//       message: error.message
-//     });
-//   }
-// };
 
 exports.createOrder = async (req, res) => {
   try {
@@ -102,42 +72,6 @@ exports.createOrder = async (req, res) => {
 // @desc    Get order by ID
 // @route   GET /api/orders/:id
 // @access  Private
-// exports.getOrderById = async (req, res) => {
-//   try {
-//     const order = await Order.findById(req.params.id).populate(
-//       "user",
-//       "name email"
-//     );
-
-//     if (order) {
-//       // Only allow admin or the user who placed the order to view it
-//       if (
-//         req.user.isAdmin ||
-//         order.user._id.toString() === req.user._id.toString()
-//       ) {
-//         res.status(200).json({
-//           success: true,
-//           order,
-//         });
-//       } else {
-//         res.status(401).json({
-//           success: false,
-//           message: "Not authorized to view this order",
-//         });
-//       }
-//     } else {
-//       res.status(404).json({
-//         success: false,
-//         message: "Order not found",
-//       });
-//     }
-//   } catch (error) {
-//     res.status(500).json({
-//       success: false,
-//       message: error.message,
-//     });
-//   }
-// };
 exports.getOrderById = async (req, res) => {
   try {
     const orderId = req.params.id;
@@ -198,23 +132,6 @@ exports.getOrderById = async (req, res) => {
 // @desc    Get logged in user orders
 // @route   GET /api/orders/myorders
 // @access  Private
-// exports.getUserOrders = async (req, res) => {
-//   try {
-//     const orders = await Order.find({ user: req.user._id });
-
-//     res.status(200).json({
-//       success: true,
-//       count: orders.length,
-//       orders,
-//     });
-//   } catch (error) {
-//     res.status(500).json({
-//       success: false,
-//       message: error.message,
-//     });
-//   }
-// };
-
 exports.getUserOrders = async (req, res) => {
   try {
     // Step 1: Fetch all orders by current user
@@ -264,22 +181,6 @@ exports.getUserOrders = async (req, res) => {
 // @desc    Get all orders
 // @route   GET /api/orders
 // @access  Private/Admin
-// exports.getOrders = async (req, res) => {
-//   try {
-//     const orders = await Order.find({}).populate("user", "id name");
-
-//     res.status(200).json({
-//       success: true,
-//       count: orders.length,
-//       orders,
-//     });
-//   } catch (error) {
-//     res.status(500).json({
-//       success: false,
-//       message: error.message,
-//     });
-//   }
-// };
 exports.getOrders = async (req, res) => {
   try {
     // Step 1: Fetch all orders, joined with user info
@@ -335,34 +236,6 @@ exports.getOrders = async (req, res) => {
 // @desc    Update order status
 // @route   PUT /api/orders/:id/status
 // @access  Private/Admin
-// exports.updateOrderStatus = async (req, res) => {
-//   try {
-//     const { status } = req.body;
-
-//     const order = await Order.findById(req.params.id);
-
-//     if (order) {
-//       order.status = status;
-
-//       const updatedOrder = await order.save();
-
-//       res.status(200).json({
-//         success: true,
-//         order: updatedOrder,
-//       });
-//     } else {
-//       res.status(404).json({
-//         success: false,
-//         message: "Order not found",
-//       });
-//     }
-//   } catch (error) {
-//     res.status(500).json({
-//       success: false,
-//       message: error.message,
-//     });
-//   }
-// };
 exports.updateOrderStatus = async (req, res) => {
   const { status } = req.body;
   const orderId = req.params.id;

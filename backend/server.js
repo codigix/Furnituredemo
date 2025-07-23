@@ -13,6 +13,7 @@ const productRoutes = require("./routes/productRoutes");
 const userRoutes = require("./routes/userRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const adminRoutes = require("./routes/adminRoutes");
+const cartRoutes = require("./routes/cartRoutes");
 
 // Create Express app
 const app = express();
@@ -23,10 +24,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
     origin: [
-      // "http://localhost:3000",
-      // "http://localhost:8081",
-      // "http://localhost:8080",
-       "https://furnituredemo.codigix.co"
+      "http://localhost:3000",
+      "http://localhost:8081",
+      "http://localhost:8080",
+      //  "https://furnituredemo.codigix.co"
     ], // Allow React development servers
     credentials: true,
   })
@@ -38,6 +39,7 @@ app.use("/api/products", productRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/admin",adminRoutes)
+app.use("/api/cart",cartRoutes);
 
 // Default route
 app.get("/", (req, res) => {
