@@ -148,7 +148,7 @@ exports.getUserOrders = async (req, res) => {
     // Step 2: For each order, fetch its items
     const ordersWithItems = await Promise.all(
       orders.map(async (order) => {
-        const { data: items, error: itemsError } = await supabase
+        const { data: items, error: itemsError } = await supxabase
           .from("order_items")
           .select("*")
           .eq("order_id", order.id);
