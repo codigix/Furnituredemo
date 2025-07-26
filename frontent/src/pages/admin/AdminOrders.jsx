@@ -40,9 +40,20 @@ const AdminOrders = () => {
       ? "bg-blue-100 text-blue-800"
       : "bg-amber-100 text-amber-800";
 
-  const handleUpdateStatus = (orderId, status) => {
-    dispatch(updateOrderStatus({ id: orderId, status }));
-    toast.success(`Order status updated to ${status}`);
+  // const handleUpdateStatus = (orderId, status) => {
+  //   dispatch(updateOrderStatus({ id: orderId, status }));
+  //   dispatch(fetchAllOrders());
+  //   toast.success(`Order status updated to ${status}`);
+  // };
+  const handleUpdateStatus = async (orderId, status) => {
+    try {
+      await dispatch(updateOrderStatus({ id: orderId, status }));
+      await dispatch(fetchAllOrders());
+      toast.success(`Order status updated to ${status}`);
+    } catch (error) {
+      console.error(error);
+      toast.error("Something went wrong");
+    }
   };
 
   // const filteredOrders = orders.filter(

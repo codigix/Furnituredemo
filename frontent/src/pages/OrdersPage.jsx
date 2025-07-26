@@ -19,7 +19,7 @@ const OrdersPage = () => {
   const { user } = useAppSelector((state) => state.auth);
   
   // Filter orders for the current user
-  const userOrders = orders.filter((order) => order.userId === user?.id);
+  const userOrders = orders.filter((order) => order.user_id === user?.id);
   
   const getStatusColor = (status) => {
     switch (status) {
@@ -76,10 +76,10 @@ const OrdersPage = () => {
                 <TableCell className="font-medium">#{order.id.slice(0, 8)}</TableCell>
                 <TableCell>
                   <div>
-                    {new Date(order.createdAt).toLocaleDateString()}
+                    {new Date(order.created_at).toLocaleDateString()}
                   </div>
                   <div className="text-xs text-gray-500">
-                    {formatDistance(new Date(order.createdAt), new Date(), { addSuffix: true })}
+                    {formatDistance(new Date(order.created_at), new Date(), { addSuffix: true })}
                   </div>
                 </TableCell>
                 <TableCell>{order.items.reduce((acc, item) => acc + item.quantity, 0)} items</TableCell>

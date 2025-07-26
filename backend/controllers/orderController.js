@@ -1,7 +1,7 @@
 // const Order = require('../models/orderModel');
 // const Product = require('../models/productModel');
 const supabase = require("../db/supabaseClient");
-
+const sendConfirmationEmail = require("../utils/mailer");
 // @desc    Create new order
 // @route   POST /api/orders
 // @access  Private
@@ -52,6 +52,18 @@ exports.createOrder = async (req, res) => {
       .insert(orderItems);
 
     if (itemError) throw itemError;
+
+    const { data: user, error: userError } = await supabase
+      .from("users")
+      .select("email")
+      .eq("id", req.user.id)
+      .single();
+
+    if (userError) throw userError;
+    const subject = "Order Confirmation";
+    const text = `Thank you for your order!\n\nOrder ID: ${order.id}\nTotal: ₹${order.total}\nShipping Address: ${order.shipping_address}\n\nWe will notify you once your order is shipped.`;
+
+    await sendConfirmationEmail(user.email, subject, text);
 
     // Success response
     res.status(201).json({

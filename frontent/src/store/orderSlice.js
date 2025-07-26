@@ -73,13 +73,28 @@ export const fetchAllOrders = createAsyncThunk(
   }
 );
 
+// export const updateOrderStatus = createAsyncThunk(
+//   "orders/updateOrderStatus",
+//   async ({ id, status }, { rejectWithValue }) => {
+//     try {
+//       const response = await orderService.updateOrderStatus(id, status);
+//       // return response.order;
+//       return response.data.orders || response.orders;
+//     } catch (error) {
+//       return rejectWithValue(error.message || "Failed to update order status");
+//     }
+//   }
+// );
 export const updateOrderStatus = createAsyncThunk(
   "orders/updateOrderStatus",
   async ({ id, status }, { rejectWithValue }) => {
     try {
       const response = await orderService.updateOrderStatus(id, status);
-      // return response.order;
-      return response.data.orders || response.orders;
+
+      const updated = response.data?.orders || response.orders;
+
+      // ✅ Always return a single object (first order)
+      return Array.isArray(updated) ? updated[0] : updated;
     } catch (error) {
       return rejectWithValue(error.message || "Failed to update order status");
     }
@@ -169,19 +184,48 @@ const orderSlice = createSlice({
         state.isLoading = true;
         state.error = null;
       })
+      // .addCase(updateOrderStatus.fulfilled, (state, action) => {
+      //   state.isLoading = false;
+      //   const index = state.orders.findIndex(
+      //     (order) => order.id === action.payload.id
+      //   );
+      //   if (index !== -1) {
+      //     state.orders[index] = action.payload;
+      //   }
+      //   if (state.currentOrder && state.currentOrder.id === action.payload.id) {
+      //     state.currentOrder = action.payload;
+      //   }
+      //   toast.success(`Order status updated to ${action.payload.status}`);
+      // })
       .addCase(updateOrderStatus.fulfilled, (state, action) => {
         state.isLoading = false;
+
+        const updatedOrder = action.payload;
+
+        // ✅ Handle edge case: if no valid payload
+        if (!updatedOrder || !updatedOrder.id) {
+          toast.error(
+            "Invalid response from server when updating order status"
+          );
+          return;
+        }
+
+        // ✅ Update order in list
         const index = state.orders.findIndex(
-          (order) => order.id === action.payload.id
+          (order) => order.id === updatedOrder.id
         );
         if (index !== -1) {
-          state.orders[index] = action.payload;
+          state.orders[index] = updatedOrder;
         }
-        if (state.currentOrder && state.currentOrder.id === action.payload.id) {
-          state.currentOrder = action.payload;
+
+        // ✅ Update currentOrder if needed
+        if (state.currentOrder?.id === updatedOrder.id) {
+          state.currentOrder = updatedOrder;
         }
-        toast.success(`Order status updated to ${action.payload.status}`);
+
+        toast.success(`Order status updated to ${updatedOrder.status}`);
       })
+
       .addCase(updateOrderStatus.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
