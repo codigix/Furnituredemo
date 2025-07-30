@@ -1,5 +1,3 @@
-// const Order = require('../models/orderModel');
-// const Product = require('../models/productModel');
 const supabase = require("../db/supabaseClient");
 const sendConfirmationEmail = require("../utils/mailer");
 // @desc    Create new order
@@ -160,7 +158,7 @@ exports.getUserOrders = async (req, res) => {
     // Step 2: For each order, fetch its items
     const ordersWithItems = await Promise.all(
       orders.map(async (order) => {
-        const { data: items, error: itemsError } = await supxabase
+        const { data: items, error: itemsError } = await supabase
           .from("order_items")
           .select("*")
           .eq("order_id", order.id);
